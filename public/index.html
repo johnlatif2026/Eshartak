@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>إشارتك - دليل إشارات النقل المصرية</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', 'Tajawal', 'Segoe UI', sans-serif;
+      background: #f5f7fb;
+      color: #1e293b;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Dark Mode */
+    body.dark {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    body.dark .card {
+      background: #1e293b;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    body.dark input, body.dark textarea, body.dark select {
+      background: #334155;
+      color: #f1f5f9;
+      border-color: #475569;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    body.dark .navbar {
+      background: #1e293b;
+    }
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .theme-toggle {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.05);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .search-box {
+      max-width: 600px;
+      margin: 32px auto;
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 60px;
+      outline: none;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    .search-box input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    /* Governors Grid */
+    .governors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 40px 0;
+    }
+    .gov-btn {
+      padding: 10px 24px;
+      border: none;
+      background: white;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    body.dark .gov-btn {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    .gov-btn.active {
+      background: #2563eb;
+      color: white;
+    }
+
+    /* Signs Grid */
+    .signs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 28px;
+      margin: 40px 0;
+    }
+    .card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card video {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #000;
+    }
+    .card-content {
+      padding: 20px;
+    }
+    .destination {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .governorate-badge {
+      display: inline-block;
+      background: #e2e8f0;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    body.dark .governorate-badge {
+      background: #475569;
+    }
+
+    /* Submission Form */
+    .form-section {
+      background: white;
+      border-radius: 32px;
+      padding: 40px;
+      margin: 60px 0;
+    }
+    body.dark .form-section {
+      background: #1e293b;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      font-family: inherit;
+      font-size: 16px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 40px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 40px;
+      z-index: 1000;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .signs-grid { grid-template-columns: 1fr; }
+      .form-section { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+<div class="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <div class="logo">🚍 إشارتك | Eshartak</div>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <h1>إشارات الميكروباص في مصر 🇪🇬</h1>
+    <p>دليلك الشامل لفهم إشارات اليد بين السائقين والركاب</p>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 ابحث عن وجهة... مثل: رمسيس، فيصل، العتبة">
+    </div>
+  </div>
+
+  <div class="governors" id="governorsList"></div>
+  <div class="signs-grid" id="signsGrid">
+    <div style="text-align:center;">جاري التحميل...</div>
+  </div>
+
+  <div class="form-section">
+    <h2 style="margin-bottom:24px;">➕ أضف إشارة جديدة</h2>
+    <form id="submitForm">
+      <div class="form-group">
+        <label>اسم الوجهة *</label>
+        <input type="text" id="destName" required placeholder="مثل: ميدان التحرير">
+      </div>
+      <div class="form-group">
+        <label>المحافظة *</label>
+        <select id="govSelect" required>
+          <option value="">اختر المحافظة</option>
+          <option>القاهرة</option><option>الجيزة</option><option>الإسكندرية</option>
+          <option>الشرقية</option><option>الدقهلية</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>فيديو الإشارة *</label>
+        <input type="file" id="videoFile" accept="video/*" required>
+      </div>
+      <div class="form-group">
+        <label>ملاحظات إضافية</label>
+        <textarea rows="3" id="notes" placeholder="شرح الإشارة..."></textarea>
+      </div>
+      <button type="submit">📤 إرسال الإشارة</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const API_URL = window.location.origin;
+  let currentGov = 'all';
+  let currentSearch = '';
+
+  async function fetchSigns() {
+    let url = `${API_URL}/api/signs?governorate=${currentGov}`;
+    if (currentSearch) url += `&search=${encodeURIComponent(currentSearch)}`;
+    const res = await fetch(url);
+    const signs = await res.json();
+    renderSigns(signs);
+  }
+
+  function renderSigns(signs) {
+    const grid = document.getElementById('signsGrid');
+    if (!signs.length) {
+      grid.innerHTML = '<div style="text-align:center; grid-column:1/-1;">لا توجد إشارات متاحة حالياً</div>';
+      return;
+    }
+    grid.innerHTML = signs.map(sign => `
+      <div class="card">
+        <video src="${sign.videoUrl}" controls preload="metadata"></video>
+        <div class="card-content">
+          <div class="destination">📍 ${sign.destinationName}</div>
+          <div class="governorate-badge">${sign.governorate}</div>
+          ${sign.description ? `<p style="margin-top:12px; font-size:14px;">${sign.description}</p>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Governors list
+  const governors = ['جميع المحافظات', 'القاهرة', 'الجيزة', 'الإسكندرية', 'الشرقية', 'الدقهلية'];
+  function renderGovernors() {
+    const container = document.getElementById('governorsList');
+    container.innerHTML = governors.map(gov => {
+      const val = gov === 'جميع المحافظات' ? 'all' : gov;
+      return `<button class="gov-btn ${currentGov === val ? 'active' : ''}" data-gov="${val}">${gov}</button>`;
+    }).join('');
+    document.querySelectorAll('.gov-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentGov = btn.dataset.gov;
+        renderGovernors();
+        fetchSigns();
+      });
+    });
+  }
+
+  // Submit form
+  document.getElementById('submitForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('destinationName', document.getElementById('destName').value);
+    formData.append('governorate', document.getElementById('govSelect').value);
+    formData.append('video', document.getElementById('videoFile').files[0]);
+    formData.append('notes', document.getElementById('notes').value);
+
+    const res = await fetch(`${API_URL}/api/submit`, { method: 'POST', body: formData });
+    const data = await res.json();
+    alert(data.message || 'تم الإرسال! سيتم المراجعة قريباً');
+    document.getElementById('submitForm').reset();
+  });
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    currentSearch = e.target.value;
+    fetchSigns();
+  });
+
+  // Dark mode
+  const themeToggle = document.getElementById('themeToggle');
+  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    themeToggle.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+  });
+
+  renderGovernors();
+  fetchSigns();
+</script>
+</body>
+</html>

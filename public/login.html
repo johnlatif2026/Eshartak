@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دخول المدير - إشارتك</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      background: white;
+      border-radius: 32px;
+      padding: 48px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    h1 { font-size: 32px; margin-bottom: 8px; color: #1e293b; }
+    .sub { color: #64748b; margin-bottom: 32px; }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      margin: 12px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 24px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 40px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    .error { color: #dc2626; margin-top: 16px; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="login-card">
+  <h1>🔐 دخول المدير</h1>
+  <p class="sub">إشارتك - لوحة التحكم</p>
+  <input type="text" id="username" placeholder="اسم المستخدم" autocomplete="off">
+  <input type="password" id="password" placeholder="كلمة المرور">
+  <button onclick="login()">تسجيل الدخول</button>
+  <div class="error" id="errorMsg"></div>
+</div>
+<script>
+  async function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.token);
+      window.location.href = '/dashboard.html';
+    } else {
+      document.getElementById('errorMsg').innerText = data.error || 'بيانات دخول خاطئة';
+    }
+  }
+</script>
+</body>
+</html>
