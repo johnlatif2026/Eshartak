@@ -20,6 +20,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .logout-btn {
       background: #ef4444;
@@ -208,6 +210,10 @@
     .save-btn:hover {
       background: #059669;
     }
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
     @media (max-width: 768px) {
       body { padding: 16px; }
@@ -272,16 +278,16 @@
         </select>
       </div>
       <div class="modal-form-group">
+        <label>الوصف</label>
+        <textarea id="editDescription" rows="3" placeholder="وصف الإشارة..."></textarea>
+      </div>
+      <div class="modal-form-group">
         <label>الفيديو الحالي</label>
         <div class="current-video" id="currentVideoPreview"></div>
         <label style="margin-top: 12px;">تغيير الفيديو (اختياري)</label>
         <input type="file" id="editVideo" accept="video/*">
       </div>
-      <div class="modal-form-group">
-        <label>الوصف</label>
-        <textarea id="editDescription" rows="3" placeholder="وصف الإشارة..."></textarea>
-      </div>
-      <button type="button" class="save-btn" onclick="saveEdit()">💾 حفظ التغييرات</button>
+      <button type="button" class="save-btn" id="saveBtn" onclick="saveEdit()">💾 حفظ التغييرات</button>
     </form>
   </div>
 </div>
@@ -343,8 +349,8 @@
             <td>
               <button class="approve" onclick="approve('${s.id}')">قبول</button>
               <button class="reject" onclick="reject('${s.id}')">رفض</button>
-             </td>
-          </tr>`;
+              </td>
+           </tr>`;
         });
       }
       subHtml += '</tbody></table>';
@@ -364,11 +370,11 @@
             <td>
               <button class="delete" onclick="deleteSign('${s.id}')">حذف</button>
               <button class="edit" onclick="openEditModal('${s.id}', '${escapeHtml(s.destinationName)}', '${escapeHtml(s.governorate)}', '${escapeHtml(s.description || '')}', '${s.videoUrl}')">تعديل</button>
-             </td>
-          </tr>`;
+              </td>
+           </tr>`;
         });
       }
-      signsHtml += '</tbody></table>';
+      signsHtml += '</tbody><tr>';
       document.getElementById('signsTable').innerHTML = signsHtml;
     } catch (err) {
       showMessage('حدث خطأ في تحميل البيانات', true);
@@ -407,53 +413,57 @@
     document.getElementById('editVideo').value = '';
   }
 
-  // Save Edit - with optional new video
+  // Save Edit - Official implementation using PUT and PATCH
   async function saveEdit() {
     const newName = document.getElementById('editDestName').value.trim();
     const newGov = document.getElementById('editGovernorate').value;
     const newDesc = document.getElementById('editDescription').value.trim();
     const newVideoFile = document.getElementById('editVideo').files[0];
+    const saveBtn = document.getElementById('saveBtn');
 
     if (!newName) {
       showMessage('يرجى إدخال اسم الوجهة', true);
       return;
     }
 
-    try {
-      if (newVideoFile) {
-        // If there's a new video, we need to upload it via POST then delete old
-        const formData = new FormData();
-        formData.append('destinationName', newName);
-        formData.append('governorate', newGov);
-        formData.append('description', newDesc);
-        formData.append('video', newVideoFile);
+    // Disable button to prevent double submission
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'جاري الحفظ...';
 
-        // Create new sign with new video
-        const createRes = await fetchWithAuth(`${API_URL}/api/signs`, { method: 'POST', body: formData });
-        const newSign = await createRes.json();
+    try {
+      // 1. Update text fields first
+      await fetchWithAuth(`${API_URL}/api/signs/${currentEditId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          destinationName: newName, 
+          governorate: newGov, 
+          description: newDesc 
+        })
+      });
+      
+      // 2. If there's a new video, update it using PATCH
+      if (newVideoFile) {
+        const formData = new FormData();
+        formData.append('video', newVideoFile);
         
-        // Delete old sign
-        await fetchWithAuth(`${API_URL}/api/signs/${currentEditId}`, { method: 'DELETE' });
-        
-        showMessage('✅ تم التعديل بنجاح مع تغيير الفيديو');
-      } else {
-        // Update only text fields
-        await fetchWithAuth(`${API_URL}/api/signs/${currentEditId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            destinationName: newName, 
-            governorate: newGov, 
-            description: newDesc 
-          })
+        await fetchWithAuth(`${API_URL}/api/signs/${currentEditId}/video`, {
+          method: 'PATCH',
+          body: formData
         });
+        showMessage('✅ تم تعديل الإشارة والفيديو بنجاح');
+      } else {
         showMessage('✅ تم تعديل الإشارة بنجاح');
       }
       
       closeEditModal();
       loadDashboard();
     } catch (err) {
+      console.error('Save error:', err);
       showMessage('فشل التعديل، حاول مرة أخرى', true);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = '💾 حفظ التغييرات';
     }
   }
 
