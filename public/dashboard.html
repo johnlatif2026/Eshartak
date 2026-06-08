@@ -298,7 +298,7 @@
   let currentEditId = null;
   let currentVideoUrl = null;
 
-  if (!token) window.location.href = '/login.html';
+  if (!token) window.location.href = '/login';
 
   async function fetchWithAuth(url, options = {}) {
     const res = await fetch(url, {
@@ -307,7 +307,7 @@
     });
     if (res.status === 401 || res.status === 403) {
       localStorage.removeItem('token');
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     }
     return res;
   }
@@ -526,7 +526,7 @@
   
   function logout() {
     localStorage.removeItem('token');
-    window.location.href = '/login.html';
+    window.location.href = '/login';
   }
 
   // Close modal when clicking outside
