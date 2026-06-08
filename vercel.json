@@ -16,6 +16,14 @@
       "dest": "/server.js"
     },
     {
+      "src": "/login",
+      "dest": "/public/login.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/public/dashboard.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
