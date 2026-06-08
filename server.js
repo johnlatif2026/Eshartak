@@ -101,7 +101,6 @@ app.post('/api/login',
     }
 
     const { username, password } = req.body;
-    // مقارنة نصية مباشرة بدون bcrypt
     if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
       const token = jwt.sign(
         { username, role: 'admin' },
@@ -169,21 +168,74 @@ app.post('/api/signs', authenticateJWT, upload.single('video'), async (req, res)
   }
 });
 
-// PUT /api/signs/:id - Update sign
+// PUT /api/signs/:id - Update sign text fields
 app.put('/api/signs/:id', authenticateJWT, async (req, res) => {
   try {
     const { id } = req.params;
     const { destinationName, governorate, description } = req.body;
     
     const updateData = {};
-    if (destinationName) updateData.destinationName = destinationName;
-    if (governorate) updateData.governorate = governorate;
+    if (destinationName !== undefined) updateData.destinationName = destinationName;
+    if (governorate !== undefined) updateData.governorate = governorate;
     if (description !== undefined) updateData.description = description;
+    updateData.updatedAt = Date.now();
     
     await db.collection('signs').doc(id).update(updateData);
-    res.json({ message: 'Sign updated successfully' });
+    res.json({ message: 'تم تحديث الإشارة بنجاح' });
   } catch (err) {
+    console.error('Error updating sign:', err);
     res.status(500).json({ error: 'Failed to update sign' });
+  }
+});
+
+// PATCH /api/signs/:id/video - Update only video for a sign
+app.patch('/api/signs/:id/video', authenticateJWT, upload.single('video'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if sign exists
+    const signDoc = await db.collection('signs').doc(id).get();
+    if (!signDoc.exists) {
+      return res.status(404).json({ error: 'Sign not found' });
+    }
+    
+    // Check if video file is provided
+    if (!req.file) {
+      return res.status(400).json({ error: 'Video file is required' });
+    }
+    
+    const oldSignData = signDoc.data();
+    const oldVideoUrl = oldSignData.videoUrl;
+    const newVideoUrl = req.file.path;
+    
+    // Delete old video from Cloudinary
+    if (oldVideoUrl && oldVideoUrl.includes('cloudinary.com')) {
+      try {
+        const urlParts = oldVideoUrl.split('/');
+        const filenameWithExt = urlParts[urlParts.length - 1];
+        const filename = filenameWithExt.split('.')[0];
+        const publicId = `eshartak/${filename}`;
+        
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+        console.log('Deleted old video from Cloudinary:', publicId);
+      } catch (cloudErr) {
+        console.log('Cloudinary delete error:', cloudErr);
+      }
+    }
+    
+    // Update sign with new video URL
+    await db.collection('signs').doc(id).update({
+      videoUrl: newVideoUrl,
+      updatedAt: Date.now()
+    });
+    
+    res.json({ 
+      message: 'تم تحديث الفيديو بنجاح',
+      videoUrl: newVideoUrl
+    });
+  } catch (err) {
+    console.error('Error updating video:', err);
+    res.status(500).json({ error: 'Failed to update video' });
   }
 });
 
