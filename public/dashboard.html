@@ -51,11 +51,16 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      overflow-x: auto;
+      display: block;
     }
     th, td {
       padding: 12px;
       text-align: right;
       border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background: #f8fafc;
     }
     video {
       width: 100px;
@@ -77,11 +82,24 @@
       gap: 16px;
       flex-wrap: wrap;
       margin-top: 20px;
+      align-items: flex-end;
     }
     .form-card input, .form-card select {
       padding: 10px;
       border-radius: 20px;
       border: 1px solid #cbd5e1;
+      font-family: inherit;
+    }
+    .upload-btn {
+      background: #2563eb;
+      color: white;
+      padding: 10px 24px;
+    }
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      th, td { padding: 8px; font-size: 14px; }
+      video { width: 60px; }
+      .form-card input, .form-card select { width: 100%; }
     }
   </style>
 </head>
@@ -107,14 +125,14 @@
   <div class="section">
     <h2>➕ رفع إشارة رسمية جديدة</h2>
     <div class="form-card">
-      <input type="text" id="newDest" placeholder="الوجهة">
-      <select id="newGov">
-        <option>القاهرة</option><option>الجيزة</option><option>الإسكندرية</option>
-        <option>الشرقية</option><option>الدقهلية</option>
+      <input type="text" id="newDest" placeholder="الوجهة" style="flex:2; min-width:150px;">
+      <select id="newGov" style="flex:1; min-width:120px;">
+        <option value="القاهرة">القاهرة</option>
+        <option value="الإسكندرية">الإسكندرية</option>
       </select>
-      <input type="file" id="newVideo" accept="video/*">
-      <input type="text" id="newDesc" placeholder="وصف">
-      <button onclick="uploadOfficialSign()">رفع الإشارة</button>
+      <input type="file" id="newVideo" accept="video/*" style="flex:2; min-width:200px;">
+      <input type="text" id="newDesc" placeholder="وصف الإشارة" style="flex:2; min-width:150px;">
+      <button onclick="uploadOfficialSign()" class="upload-btn" style="flex:0;">📤 رفع</button>
     </div>
   </div>
 </div>
@@ -136,86 +154,170 @@
     return res;
   }
 
-  async function loadDashboard() {
-    // Load submissions
-    const subRes = await fetchWithAuth(`${API_URL}/api/submissions`);
-    const submissions = await subRes.json();
-    const pending = submissions.filter(s => s.status === 'pending');
-    document.getElementById('stats').innerHTML = `
-      <div class="stat-card">⏳ قيد المراجعة: ${pending.length}</div>
-      <div class="stat-card">✅ إشارات معتمدة: ${submissions.filter(s=>s.status==='approved').length}</div>
-      <div class="stat-card">📋 إجمالي الطلبات: ${submissions.length}</div>
-    `;
-    
-    let subHtml = '<table><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>ملاحظات</th><th>إجراءات</th></tr>';
-    pending.forEach(s => {
-      subHtml += `<tr>
-        <td>${s.destinationName}</td>
-        <td>${s.governorate}</td>
-        <td><video src="${s.videoUrl}" controls width="100"></video></td>
-        <td>${s.notes || '-'}</td>
-        <td><button class="approve" onclick="approve('${s.id}')">قبول</button>
-        <button class="reject" onclick="reject('${s.id}')">رفض</button></td>
-      </tr>`;
-    });
-    subHtml += '</table>';
-    document.getElementById('submissionsTable').innerHTML = subHtml || '<p>لا توجد طلبات معلقة</p>';
+  function showMessage(msg, isError = false) {
+    const existing = document.querySelector('.dashboard-message');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.className = 'dashboard-message';
+    div.textContent = msg;
+    div.style.cssText = `position:fixed; bottom:20px; right:20px; background:${isError ? '#ef4444' : '#10b981'}; color:white; padding:12px 24px; border-radius:40px; z-index:1000; animation:fadeOut 3s forwards;`;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
 
-    // Load signs
-    const signsRes = await fetch(`${API_URL}/api/signs`);
-    const signs = await signsRes.json();
-    let signsHtml = '<table><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>الإجراءات</th></tr>';
-    signs.forEach(s => {
-      signsHtml += `<tr>
-        <td>${s.destinationName}</td>
-        <td>${s.governorate}</td>
-        <td><video src="${s.videoUrl}" controls width="100"></video></td>
-        <td><button class="delete" onclick="deleteSign('${s.id}')">حذف</button>
-        <button class="edit" onclick="editSign('${s.id}','${s.destinationName}','${s.governorate}')">تعديل</button></td>
-      </tr>`;
+  async function loadDashboard() {
+    try {
+      // Load submissions
+      const subRes = await fetchWithAuth(`${API_URL}/api/submissions`);
+      const submissions = await subRes.json();
+      const pending = submissions.filter(s => s.status === 'pending');
+      const approved = submissions.filter(s => s.status === 'approved');
+      
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card">⏳ قيد المراجعة: ${pending.length}</div>
+        <div class="stat-card">✅ تمت الموافقة: ${approved.length}</div>
+        <div class="stat-card">📋 إجمالي الطلبات: ${submissions.length}</div>
+      `;
+      
+      let subHtml = '<table><thead><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>ملاحظات</th><th>إجراءات</th></tr></thead><tbody>';
+      if (pending.length === 0) {
+        subHtml += '<tr><td colspan="5" style="text-align:center;">✨ لا توجد طلبات معلقة</td></tr>';
+      } else {
+        pending.forEach(s => {
+          subHtml += `<tr>
+            <td>${escapeHtml(s.destinationName)}</td>
+            <td>${escapeHtml(s.governorate)}</td>
+            <td><video src="${s.videoUrl}" controls width="100"></video></td>
+            <td>${escapeHtml(s.notes) || '-'}</td>
+            <td>
+              <button class="approve" onclick="approve('${s.id}')">قبول</button>
+              <button class="reject" onclick="reject('${s.id}')">رفض</button>
+            </td>
+          </tr>`;
+        });
+      }
+      subHtml += '</tbody></table>';
+      document.getElementById('submissionsTable').innerHTML = subHtml;
+
+      // Load signs
+      const signsRes = await fetch(`${API_URL}/api/signs`);
+      const signs = await signsRes.json();
+      let signsHtml = '<table><thead><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>الإجراءات</th></tr></thead><tbody>';
+      if (signs.length === 0) {
+        signsHtml += '<tr><td colspan="4" style="text-align:center;">📭 لا توجد إشارات معتمدة بعد</td></tr>';
+      } else {
+        signs.forEach(s => {
+          signsHtml += `<tr>
+            <td>${escapeHtml(s.destinationName)}</td>
+            <td>${escapeHtml(s.governorate)}</td>
+            <td><video src="${s.videoUrl}" controls width="100"></video></td>
+            <td>
+              <button class="delete" onclick="deleteSign('${s.id}')">حذف</button>
+              <button class="edit" onclick="editSign('${s.id}','${escapeHtml(s.destinationName)}','${escapeHtml(s.governorate)}')">تعديل</button>
+            </td>
+          </tr>`;
+        });
+      }
+      signsHtml += '</tbody></table>';
+      document.getElementById('signsTable').innerHTML = signsHtml;
+    } catch (err) {
+      showMessage('حدث خطأ في تحميل البيانات', true);
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
     });
-    signsHtml += '</table>';
-    document.getElementById('signsTable').innerHTML = signsHtml;
   }
 
   async function approve(id) {
-    await fetchWithAuth(`${API_URL}/api/submissions/${id}/approve`, { method: 'POST' });
-    loadDashboard();
-  }
-  async function reject(id) {
-    await fetchWithAuth(`${API_URL}/api/submissions/${id}/reject`, { method: 'POST' });
-    loadDashboard();
-  }
-  async function deleteSign(id) {
-    if (confirm('حذف الإشارة نهائياً؟')) {
-      await fetchWithAuth(`${API_URL}/api/signs/${id}`, { method: 'DELETE' });
+    if (confirm('هل تريد قبول هذه الإشارة ونشرها للجميع؟')) {
+      await fetchWithAuth(`${API_URL}/api/submissions/${id}/approve`, { method: 'POST' });
+      showMessage('✅ تم قبول الإشارة ونشرها');
       loadDashboard();
     }
   }
-  async function uploadOfficialSign() {
-    const formData = new FormData();
-    formData.append('destinationName', document.getElementById('newDest').value);
-    formData.append('governorate', document.getElementById('newGov').value);
-    formData.append('video', document.getElementById('newVideo').files[0]);
-    formData.append('description', document.getElementById('newDesc').value);
-    await fetchWithAuth(`${API_URL}/api/signs`, { method: 'POST', body: formData });
-    alert('تمت الإضافة');
-    loadDashboard();
+  
+  async function reject(id) {
+    if (confirm('هل تريد رفض هذه الإشارة؟')) {
+      await fetchWithAuth(`${API_URL}/api/submissions/${id}/reject`, { method: 'POST' });
+      showMessage('❌ تم رفض الإشارة');
+      loadDashboard();
+    }
   }
-  function editSign(id, name, gov) {
-    const newName = prompt('الاسم الجديد:', name);
-    if (newName) {
+  
+  async function deleteSign(id) {
+    if (confirm('⚠️ حذف الإشارة نهائياً؟ لا يمكن التراجع!')) {
+      await fetchWithAuth(`${API_URL}/api/signs/${id}`, { method: 'DELETE' });
+      showMessage('🗑️ تم حذف الإشارة');
+      loadDashboard();
+    }
+  }
+  
+  async function uploadOfficialSign() {
+    const destName = document.getElementById('newDest').value.trim();
+    const governorate = document.getElementById('newGov').value;
+    const videoFile = document.getElementById('newVideo').files[0];
+    const description = document.getElementById('newDesc').value.trim();
+
+    if (!destName) {
+      showMessage('يرجى إدخال اسم الوجهة', true);
+      return;
+    }
+    if (!videoFile) {
+      showMessage('يرجى اختيار فيديو للإشارة', true);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('destinationName', destName);
+    formData.append('governorate', governorate);
+    formData.append('video', videoFile);
+    formData.append('description', description);
+
+    try {
+      await fetchWithAuth(`${API_URL}/api/signs`, { method: 'POST', body: formData });
+      showMessage('✅ تمت إضافة الإشارة بنجاح');
+      document.getElementById('newDest').value = '';
+      document.getElementById('newVideo').value = '';
+      document.getElementById('newDesc').value = '';
+      loadDashboard();
+    } catch (err) {
+      showMessage('فشل الرفع، تأكد من الفيديو', true);
+    }
+  }
+  
+  function editSign(id, oldName, oldGov) {
+    const newName = prompt('✏️ أدخل الاسم الجديد للوجهة:', oldName);
+    if (newName && newName.trim()) {
       fetchWithAuth(`${API_URL}/api/signs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ destinationName: newName, governorate: gov })
-      }).then(() => loadDashboard());
+        body: JSON.stringify({ destinationName: newName.trim(), governorate: oldGov })
+      }).then(() => {
+        showMessage('✏️ تم تعديل الإشارة');
+        loadDashboard();
+      });
     }
   }
+  
   function logout() {
     localStorage.removeItem('token');
     window.location.href = '/login.html';
   }
+
+  // إضافة مفتاح Esc لإلغاء
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.querySelector('.dashboard-message')) {
+      document.querySelector('.dashboard-message')?.remove();
+    }
+  });
+
   loadDashboard();
 </script>
 </body>
