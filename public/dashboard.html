@@ -13,7 +13,6 @@
       padding: 16px;
       transition: background 0.3s, color 0.3s;
     }
-    /* Dark mode */
     body.dark {
       background: #0f172a;
       color: #e2e8f0;
@@ -55,13 +54,19 @@
       cursor: pointer;
       padding: 8px;
       border-radius: 50%;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .theme-toggle:hover {
-      background: rgba(0,0,0,0.05);
+      background: rgba(0,0,0,0.1);
+      transform: scale(1.05);
     }
     body.dark .theme-toggle:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.15);
     }
     .logout-btn {
       background: #ef4444;
@@ -71,6 +76,11 @@
       color: white;
       cursor: pointer;
       font-weight: bold;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover {
+      background: #dc2626;
+      transform: scale(1.02);
     }
     .stats {
       display: grid;
@@ -117,7 +127,9 @@
       cursor: pointer;
       margin: 2px;
       font-size: 12px;
+      transition: all 0.2s;
     }
+    button:hover { transform: scale(1.02); }
     .approve { background: #10b981; color: white; }
     .reject { background: #f59e0b; color: white; }
     .delete { background: #ef4444; color: white; }
@@ -144,6 +156,11 @@
       border-radius: 40px;
       border: none;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-btn:hover {
+      background: #1d4ed8;
+      transform: scale(1.02);
     }
 
     .modal-overlay {
@@ -182,6 +199,16 @@
       border: none;
       font-size: 28px;
       cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .close-modal:hover {
+      background: rgba(0,0,0,0.1);
     }
     .modal-form-group { margin-bottom: 16px; }
     .modal-form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
@@ -202,6 +229,11 @@
       font-weight: bold;
       margin-top: 8px;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .save-btn:hover {
+      background: #059669;
+      transform: scale(1.02);
     }
     .current-video video { width: 100%; margin-top: 8px; border-radius: 12px; }
 
@@ -212,6 +244,7 @@
       button { padding: 4px 8px; font-size: 11px; }
       .form-card input, .form-card select { width: 100%; }
       .logo-img { height: 40px; }
+      .theme-toggle { width: 38px; height: 38px; font-size: 22px; }
     }
   </style>
 </head>
@@ -293,7 +326,6 @@
 
   if (!token) window.location.href = '/login';
 
-  // Dark mode for dashboard
   const themeToggle = document.getElementById('themeToggle');
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
@@ -318,7 +350,7 @@
   function showMessage(msg, isError = false) {
     const div = document.createElement('div');
     div.textContent = msg;
-    div.style.cssText = `position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:${isError ? '#ef4444' : '#10b981'}; color:white; padding:10px 20px; border-radius:40px; z-index:1100; font-size:14px; white-space:nowrap;`;
+    div.style.cssText = `position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:${isError ? '#ef4444' : '#10b981'}; color:white; padding:10px 20px; border-radius:40px; z-index:1100; font-size:14px; white-space:nowrap; z-index:2000;`;
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 3000);
   }
@@ -337,34 +369,43 @@
       `;
       
       let subHtml = `<table><thead><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>ملاحظات</th><th>إجراءات</th></tr></thead><tbody>`;
-      pending.forEach(s => {
-        subHtml += `<tr>
-          <td>${escapeHtml(s.destinationName)}</td>
-          <td>${escapeHtml(s.governorate)}</td>
-          <td><video src="${s.videoUrl}" controls width="80"></video></td>
-          <td>${escapeHtml(s.notes) || '-'}</td>
-          <td><button class="approve" onclick="approve('${s.id}')">قبول</button><button class="reject" onclick="reject('${s.id}')">رفض</button></td>
-        </tr>`;
-      });
-      if(pending.length===0) subHtml += '<tr><td colspan="5" style="text-align:center;">✨ لا توجد طلبات معلقة</td></tr>';
+      if (pending.length === 0) {
+        subHtml += '<tr><td colspan="5" style="text-align:center;">✨ لا توجد طلبات معلقة</td></tr>';
+      } else {
+        pending.forEach(s => {
+          subHtml += `<tr>
+            <td>${escapeHtml(s.destinationName)}</td>
+            <td>${escapeHtml(s.governorate)}</td>
+            <td><video src="${s.videoUrl}" controls width="80"></video></td>
+            <td>${escapeHtml(s.notes) || '-'}</td>
+            <td><button class="approve" onclick="approve('${s.id}')">قبول</button><button class="reject" onclick="reject('${s.id}')">رفض</button></td>
+          </tr>`;
+        });
+      }
       subHtml += '</tbody></table>';
       document.getElementById('submissionsTable').innerHTML = subHtml;
 
       const signsRes = await fetch(`${API_URL}/api/signs`);
       const signs = await signsRes.json();
-      let signsHtml = `<tr><thead><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>إجراءات</th></tr></thead><tbody>`;
-      signs.forEach(s => {
-        signsHtml += `<tr>
-          <td>${escapeHtml(s.destinationName)}</td>
-          <td>${escapeHtml(s.governorate)}</td>
-          <td><video src="${s.videoUrl}" controls width="80"></video></td>
-          <td><button class="delete" onclick="deleteSign('${s.id}')">حذف</button><button class="edit" onclick="openEditModal('${s.id}', '${escapeHtml(s.destinationName)}', '${escapeHtml(s.governorate)}', '${escapeHtml(s.description || '')}', '${s.videoUrl}')">تعديل</button></td>
-        </tr>`;
-      });
-      if(signs.length===0) signsHtml += '<tr><td colspan="4" style="text-align:center;">📭 لا توجد إشارات معتمدة بعد</td></tr>';
+      let signsHtml = `<table><thead><tr><th>الوجهة</th><th>المحافظة</th><th>فيديو</th><th>إجراءات</th></tr></thead><tbody>`;
+      if (signs.length === 0) {
+        signsHtml += '<tr><td colspan="4" style="text-align:center;">📭 لا توجد إشارات معتمدة بعد</td></tr>';
+      } else {
+        signs.forEach(s => {
+          signsHtml += `<tr>
+            <td>${escapeHtml(s.destinationName)}</td>
+            <td>${escapeHtml(s.governorate)}</td>
+            <td><video src="${s.videoUrl}" controls width="80"></video></td>
+            <td><button class="delete" onclick="deleteSign('${s.id}')">حذف</button><button class="edit" onclick="openEditModal('${s.id}', '${escapeHtml(s.destinationName)}', '${escapeHtml(s.governorate)}', '${escapeHtml(s.description || '')}', '${s.videoUrl}')">تعديل</button></td>
+          </tr>`;
+        });
+      }
       signsHtml += '</tbody></table>';
       document.getElementById('signsTable').innerHTML = signsHtml;
-    } catch(err) { showMessage('خطأ في التحميل', true); }
+    } catch(err) { 
+      console.error(err);
+      showMessage('خطأ في التحميل', true); 
+    }
   }
 
   function escapeHtml(str) { return str?.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]) || ''; }
@@ -380,24 +421,33 @@
   function closeEditModal() { document.getElementById('editModal').classList.remove('active'); currentEditId = null; }
 
   async function saveEdit() {
-    const id = currentEditId;
+    if (!currentEditId) { showMessage('خطأ: لم يتم تحديد الإشارة', true); return; }
     const newName = document.getElementById('editDestName').value;
     const newGov = document.getElementById('editGovernorate').value;
     const newDesc = document.getElementById('editDescription').value;
     const newVideo = document.getElementById('editVideo').files[0];
     const btn = document.getElementById('saveBtn');
     btn.disabled = true;
+    btn.textContent = 'جاري الحفظ...';
     try {
-      await fetchWithAuth(`${API_URL}/api/signs/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ destinationName: newName, governorate: newGov, description: newDesc }) });
+      await fetchWithAuth(`${API_URL}/api/signs/${currentEditId}`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ destinationName: newName, governorate: newGov, description: newDesc }) 
+      });
       if(newVideo) {
-        const fd = new FormData(); fd.append('video', newVideo);
-        await fetchWithAuth(`${API_URL}/api/signs/${id}/video`, { method: 'PATCH', body: fd });
+        const fd = new FormData(); 
+        fd.append('video', newVideo);
+        await fetchWithAuth(`${API_URL}/api/signs/${currentEditId}/video`, { method: 'PATCH', body: fd });
       }
       showMessage('✅ تم التعديل بنجاح');
       closeEditModal();
       loadDashboard();
-    } catch(e) { showMessage('❌ فشل التعديل', true); }
+    } catch(e) { 
+      showMessage('❌ فشل التعديل', true); 
+    }
     btn.disabled = false;
+    btn.textContent = '💾 حفظ التغييرات';
   }
 
   async function approve(id) { if(confirm('قبول هذه الإشارة؟')) { await fetchWithAuth(`${API_URL}/api/submissions/${id}/approve`, { method: 'POST' }); loadDashboard(); } }
@@ -411,10 +461,15 @@
     const desc = document.getElementById('newDesc').value;
     if(!dest || !vid) { showMessage('❌ املأ البيانات واختار فيديو', true); return; }
     const fd = new FormData();
-    fd.append('destinationName', dest); fd.append('governorate', gov); fd.append('video', vid); fd.append('description', desc);
+    fd.append('destinationName', dest); 
+    fd.append('governorate', gov); 
+    fd.append('video', vid); 
+    fd.append('description', desc);
     await fetchWithAuth(`${API_URL}/api/signs`, { method: 'POST', body: fd });
     showMessage('✅ تم الرفع بنجاح');
-    document.getElementById('newDest').value = ''; document.getElementById('newVideo').value = ''; document.getElementById('newDesc').value = '';
+    document.getElementById('newDest').value = ''; 
+    document.getElementById('newVideo').value = ''; 
+    document.getElementById('newDesc').value = '';
     loadDashboard();
   }
   
