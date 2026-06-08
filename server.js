@@ -4,28 +4,33 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const multer = require('multer');
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin SDK
 const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
 admin.initializeApp({
   credential: admin.credential.cert(firebaseConfig),
-  storageBucket: `${firebaseConfig.project_id}.appspot.com`
+});
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const db = admin.firestore();
-const bucket = admin.storage().bucket();
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-domain.com'],
+  origin: ['http://localhost:3000', 'https://eshartak.vercel.app', 'https://eshartak-ne0lzo5hy-john-latifs-projects.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
@@ -33,22 +38,35 @@ app.use(express.static('public'));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: { error: 'Too many requests, please try again later.' }
 });
 app.use('/api/', limiter);
 
-// Multer setup for video uploads (memory storage, then to Firebase)
+// Configure Multer with Cloudinary storage for videos
+const videoStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'eshartak',
+    resource_type: 'video',
+    allowed_formats: ['mp4', 'webm', 'mov', 'avi'],
+    transformation: [
+      { quality: 'auto' },
+      { fetch_format: 'auto' }
+    ]
+  }
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  storage: videoStorage,
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only MP4, WebM, and MOV are allowed.'));
+      cb(new Error('Invalid file type. Only MP4, WebM, MOV, and AVI are allowed.'));
     }
   }
 });
@@ -70,28 +88,6 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
-// Helper: Upload video to Firebase Storage
-async function uploadVideoToFirebase(file, folder) {
-  const timestamp = Date.now();
-  const filename = `${folder}/${timestamp}_${file.originalname.replace(/\s/g, '_')}`;
-  const fileUpload = bucket.file(filename);
-  
-  const stream = fileUpload.createWriteStream({
-    metadata: { contentType: file.mimetype },
-    resumable: false
-  });
-
-  return new Promise((resolve, reject) => {
-    stream.on('error', reject);
-    stream.on('finish', async () => {
-      await fileUpload.makePublic();
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
-      resolve(publicUrl);
-    });
-    stream.end(file.buffer);
-  });
-}
-
 // ========== API ROUTES ==========
 
 // POST /api/login
@@ -105,6 +101,7 @@ app.post('/api/login',
     }
 
     const { username, password } = req.body;
+    // مقارنة نصية مباشرة بدون bcrypt
     if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
       const token = jwt.sign(
         { username, role: 'admin' },
@@ -113,7 +110,7 @@ app.post('/api/login',
       );
       return res.json({ token, message: 'Login successful' });
     } else {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
     }
   }
 );
@@ -141,6 +138,7 @@ app.get('/api/signs', async (req, res) => {
     
     res.json(signs.sort((a, b) => b.createdAt - a.createdAt));
   } catch (err) {
+    console.error('Error fetching signs:', err);
     res.status(500).json({ error: 'Failed to fetch signs' });
   }
 });
@@ -153,7 +151,8 @@ app.post('/api/signs', authenticateJWT, upload.single('video'), async (req, res)
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
-    const videoUrl = await uploadVideoToFirebase(req.file, 'signs');
+    const videoUrl = req.file.path;
+    
     const newSign = {
       destinationName,
       governorate,
@@ -165,6 +164,7 @@ app.post('/api/signs', authenticateJWT, upload.single('video'), async (req, res)
     const docRef = await db.collection('signs').add(newSign);
     res.status(201).json({ id: docRef.id, ...newSign });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Failed to create sign' });
   }
 });
@@ -196,13 +196,19 @@ app.delete('/api/signs/:id', authenticateJWT, async (req, res) => {
       return res.status(404).json({ error: 'Sign not found' });
     }
     
-    // Delete from Storage (extract filename from URL)
     const videoUrl = signDoc.data().videoUrl;
-    const filename = videoUrl.split('/').pop();
-    if (filename) {
+    if (videoUrl && videoUrl.includes('cloudinary.com')) {
       try {
-        await bucket.file(`signs/${filename}`).delete();
-      } catch (e) { console.log('Storage delete error:', e); }
+        const urlParts = videoUrl.split('/');
+        const filenameWithExt = urlParts[urlParts.length - 1];
+        const filename = filenameWithExt.split('.')[0];
+        const publicId = `eshartak/${filename}`;
+        
+        await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+        console.log('Deleted from Cloudinary:', publicId);
+      } catch (cloudErr) {
+        console.log('Cloudinary delete error:', cloudErr);
+      }
     }
     
     await db.collection('signs').doc(id).delete();
@@ -220,7 +226,7 @@ app.post('/api/submit', upload.single('video'), async (req, res) => {
       return res.status(400).json({ error: 'Destination, governorate and video are required' });
     }
     
-    const videoUrl = await uploadVideoToFirebase(req.file, 'submissions');
+    const videoUrl = req.file.path;
     const submission = {
       destinationName,
       governorate,
@@ -231,8 +237,9 @@ app.post('/api/submit', upload.single('video'), async (req, res) => {
     };
     
     const docRef = await db.collection('submissions').add(submission);
-    res.status(201).json({ message: 'Submission received! Awaiting approval.' });
+    res.status(201).json({ message: 'تم استلام طلبك! سيتم المراجعة قريباً.' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Failed to submit' });
   }
 });
@@ -286,7 +293,14 @@ app.post('/api/submissions/:id/reject', authenticateJWT, async (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() });
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Eshartak server running on port ${PORT}`);
+  console.log(`📁 Using Cloudinary for video storage`);
+  console.log(`🔥 Using Firestore for database`);
 });
