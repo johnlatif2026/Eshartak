@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>إشارتك - دليل إشارات النقل المصرية</title>
+  <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/zXt6yhg0/Eshartak.jpg">
   <style>
     * {
       margin: 0;
@@ -18,12 +19,10 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* Dark Mode */
     body.dark {
       background: #0f172a;
       color: #e2e8f0;
     }
-
     body.dark .card { background: #1e293b; }
     body.dark .navbar { background: #1e293b; }
     body.dark .gov-btn { background: #334155; color: #e2e8f0; }
@@ -31,10 +30,9 @@
     .container {
       max-width: 1280px;
       margin: 0 auto;
-      padding: 0 16px; /* تقليل padding للموبايل */
+      padding: 0 16px;
     }
 
-    /* Navbar */
     .navbar {
       background: white;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -47,9 +45,19 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0; /* تقليل الارتفاع */
+      padding: 12px 0;
     }
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-img {
+      height: 45px;
+      width: auto;
+      border-radius: 12px;
+    }
+    .logo-text {
       font-size: 22px;
       font-weight: 800;
       background: linear-gradient(135deg, #2563eb, #7c3aed);
@@ -66,7 +74,6 @@
       border-radius: 50%;
     }
 
-    /* Hero */
     .hero {
       text-align: center;
       padding: 30px 0 20px;
@@ -92,7 +99,6 @@
       font-family: inherit;
     }
 
-    /* Governors Grid */
     .governors {
       display: flex;
       flex-wrap: wrap;
@@ -113,7 +119,6 @@
     }
     .gov-btn.active { background: #2563eb; color: white; }
 
-    /* Signs Grid - Responsive Cards */
     .signs-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -127,7 +132,7 @@
       transition: transform 0.2s;
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
-    .card:active { transform: scale(0.98); } /* تأثير لمس للموبايل */
+    .card:active { transform: scale(0.98); }
     .card video {
       width: 100%;
       height: 200px;
@@ -144,7 +149,6 @@
       font-size: 12px;
     }
 
-    /* FAB Button */
     .fab {
       position: fixed;
       bottom: 20px;
@@ -165,7 +169,6 @@
     }
     .fab:active { transform: scale(0.95); }
 
-    /* Modal Responsive */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -231,6 +234,8 @@
       .signs-grid { grid-template-columns: 1fr; }
       .modal-content { padding: 20px; }
       .hero h1 { font-size: 26px; }
+      .logo-img { height: 35px; }
+      .logo-text { font-size: 18px; }
     }
   </style>
 </head>
@@ -238,7 +243,10 @@
 <div class="navbar">
   <div class="container">
     <div class="nav-content">
-      <div class="logo">🚍 إشارتك | Eshartak</div>
+      <div class="logo">
+        <img src="https://i.postimg.cc/zXt6yhg0/Eshartak.jpg" alt="Eshartak" class="logo-img">
+        <span class="logo-text">إشارتك | Eshartak</span>
+      </div>
       <button class="theme-toggle" id="themeToggle">🌙</button>
     </div>
   </div>
@@ -261,7 +269,6 @@
 
 <button class="fab" id="fabBtn">➕</button>
 
-<!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -355,7 +362,6 @@
     });
   }
 
-  // Modal logic
   const modalOverlay = document.getElementById('modalOverlay');
   const fabBtn = document.getElementById('fabBtn');
   const closeModalBtn = document.getElementById('closeModalBtn');
@@ -402,7 +408,6 @@
     fetchSigns();
   });
 
-  // Dark mode
   const themeToggle = document.getElementById('themeToggle');
   if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
   themeToggle.addEventListener('click', () => {
