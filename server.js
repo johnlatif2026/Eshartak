@@ -30,7 +30,7 @@ const PORT = process.env.PORT || 3000;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://eshartak.vercel.app', 'https://eshartak-ne0lzo5hy-john-latifs-projects.vercel.app'],
+  origin: ['http://localhost:3000', 'https://eshartak.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
