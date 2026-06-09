@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>سياسة الخصوصية - إشارتك | Eshartak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Tajawal', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
+            color: #1e2a3e;
+            line-height: 1.6;
+        }
+
+        .privacy-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+        }
+
+        .lang-btn {
+            padding: 10px 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .lang-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .lang-btn:first-child {
+            border-right: 1px solid #e2e8f0;
+        }
+
+        /* Card Styles */
+        .privacy-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .privacy-header {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            padding: 48px 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .privacy-header h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .privacy-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .privacy-content {
+            padding: 40px;
+        }
+
+        .privacy-section {
+            margin-bottom: 32px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 24px;
+        }
+
+        .privacy-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .privacy-section h2 {
+            color: #1e293b;
+            font-size: 22px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .privacy-section h2 .icon {
+            font-size: 24px;
+        }
+
+        .privacy-section h3 {
+            color: #334155;
+            font-size: 18px;
+            margin: 16px 0 10px;
+        }
+
+        .privacy-section p {
+            color: #475569;
+            margin-bottom: 12px;
+        }
+
+        .privacy-section ul {
+            margin: 12px 0 12px 20px;
+            color: #475569;
+        }
+
+        .privacy-section li {
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #2563eb;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .contact-email {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .contact-email a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-email a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-container {
+                padding: 20px 16px;
+            }
+            .privacy-header {
+                padding: 32px 24px;
+            }
+            .privacy-header h1 {
+                font-size: 24px;
+            }
+            .privacy-content {
+                padding: 24px;
+            }
+            .privacy-section h2 {
+                font-size: 18px;
+            }
+            .lang-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+
+        /* English specific */
+        body.en {
+            direction: ltr;
+            text-align: left;
+        }
+
+        body.en .privacy-section ul {
+            margin: 12px 20px 12px 0;
+        }
+
+        body.en .lang-toggle {
+            left: auto;
+            right: 20px;
+        }
+
+        body.en .lang-btn:first-child {
+            border-right: none;
+            border-left: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLanguage('ar')">العربية</button>
+        <button class="lang-btn" onclick="setLanguage('en')">English</button>
+    </div>
+
+    <div class="privacy-container" id="privacyContent">
+        <!-- Arabic Content -->
+        <div id="contentAr">
+            <div class="privacy-card">
+                <div class="privacy-header">
+                    <h1>🔒 سياسة الخصوصية</h1>
+                    <p>تطبيق إشارتك - دليل إشارات الميكروباص في مصر</p>
+                    <p>آخر تحديث: 9 يونيو 2026</p>
+                </div>
+                <div class="privacy-content">
+                    <div class="privacy-section">
+                        <h2>📌 1. مقدمة</h2>
+                        <p>نحن في <strong>إشارتك (Eshartak)</strong> نلتزم بحماية خصوصيتك. توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية معلوماتك عند استخدام تطبيقنا وموقعنا الإلكتروني.</p>
+                        <p>باستخدامك لتطبيق إشارتك، فإنك توافق على جمع واستخدام المعلومات وفقاً لهذه السياسة.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>📊 2. البيانات التي نجمعها</h2>
+                        <p>نجمع الأنواع التالية من البيانات:</p>
+                        <ul>
+                            <li><span class="badge">فيديوهات</span> <strong>مقاطع الفيديو:</strong> عندما ترسل إشارة جديدة، نقوم بجمع الفيديو الذي ترفعه لإضافته إلى دليل الإشارات بعد المراجعة.</li>
+                            <li><span class="badge">بيانات</span> <strong>بيانات الاستخدام:</strong> نقوم بجمع معلومات حول كيفية تفاعلك مع التطبيق مثل الإشارات التي تشاهدها وعمليات البحث التي تجريها.</li>
+                            <li><span class="badge">مشاركات</span> <strong>المحتوى المرسل:</strong> الوجهات والمحافظات والملاحظات التي ترسلها عبر نموذج إضافة الإشارة.</li>
+                            <li><span class="badge">تقنية</span> <strong>البيانات التقنية:</strong> عنوان IP، نوع المتصفح، نظام التشغيل، ومعرف الجهاز (لأغراض التحليلات والأمان).</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>⚙️ 3. كيف نستخدم بياناتك</h2>
+                        <ul>
+                            <li><strong>تحسين التطبيق:</strong> نفهم كيفية استخدامك للتطبيق لتحسين تجربة المستخدم وتطوير ميزات جديدة.</li>
+                            <li><strong>الإشراف والمراجعة:</strong> نقوم بمراجعة الفيديوهات والبيانات المرسلة للتأكد من مطابقتها لمعايير الجودة قبل النشر.</li>
+                            <li><strong>التخزين والعرض:</strong> نخزن الإشارات المعتمدة لعرضها للمستخدمين الآخرين.</li>
+                            <li><strong>التواصل:</strong> للرد على استفساراتك وطلبات الدعم.</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🔥 4. استخدام Firebase و Cloudinary</h2>
+                        <p>نستخدم خدمات الطرف الثالث التالية:</p>
+                        <ul>
+                            <li><strong>Firebase (Google):</strong> لتخزين البيانات (قاعدة بيانات Firestore) والمصادقة. يتم تخزين بياناتك على خوادم Google الآمنة.</li>
+                            <li><strong>Cloudinary:</strong> لتخزين وتحويل الفيديوهات وتقديمها عبر شبكة توصيل المحتوى (CDN) لتجربة مشاهدة سريعة.</li>
+                            <li><strong>Vercel:</strong> لاستضافة التطبيق والخادم الخلفي (Backend).</li>
+                        </ul>
+                        <p>هذه الخدمات قد تجمع بيانات بشكل مستقل وفقاً لسياسات الخصوصية الخاصة بها.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🍪 5. ملفات تعريف الارتباط (Cookies) والتخزين المحلي</h2>
+                        <p>نستخدم ملفات تعريف الارتباط والتخزين المحلي (Local Storage) لتحسين تجربتك:</p>
+                        <ul>
+                            <li>تذكر تفضيلاتك مثل الوضع الداكن.</li>
+                            <li>تخزين رمز المصادقة (JWT) للوصول إلى لوحة التحكم.</li>
+                            <li>تحسين أداء التحميل من خلال تخزين البيانات مؤقتاً.</li>
+                        </ul>
+                        <p>يمكنك تعطيل ملفات تعريف الارتباط من إعدادات المتصفح، لكن هذا قد يؤثر على بعض وظائف التطبيق.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🔐 6. أمان البيانات</h2>
+                        <p>نحن نأخذ أمان بياناتك على محمل الجد:</p>
+                        <ul>
+                            <li>جميع الاتصالات بين جهازك وخادمنا مشفرة باستخدام SSL/TLS (HTTPS).</li>
+                            <li>يتم تخزين كلمات المرور بشكل آمن باستخدام التشفير.</li>
+                            <li>نستخدم JWT لإدارة الجلسات والمصادقة.</li>
+                            <li>يتم حماية الوصول إلى لوحة التحكم بمصادقة قوية.</li>
+                            <li>نقوم بمراجعة إجراءات الأمان بانتظام.</li>
+                        </ul>
+                        <p>⚠️ مع ذلك، لا يوجد نظام آمن بنسبة 100%. نخزّن بياناتك طالما كان حسابك نشطاً أو طالما كانت ضرورية لتقديم الخدمة.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>👤 7. حقوق المستخدم</h2>
+                        <p>لديك الحقوق التالية فيما يتعلق ببياناتك:</p>
+                        <ul>
+                            <li><strong>حق الوصول:</strong> يمكنك طلب نسخة من بياناتك المخزنة لدينا.</li>
+                            <li><strong>حق التصحيح:</strong> يمكنك طلب تصحيح أي بيانات غير دقيقة.</li>
+                            <li><strong>حق الحذف:</strong> يمكنك طلب حذف بياناتك نهائياً.</li>
+                            <li><strong>حق الاعتراض:</strong> يمكنك الاعتراض على معالجة بياناتك.</li>
+                        </ul>
+                        <p>لطلب حذف بياناتك أو لأي استفسار، تواصل معنا عبر البريد الإلكتروني أدناه.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🧒 8. خصوصية الأطفال</h2>
+                        <p>تطبيق إشارتك غير موجه للأطفال تحت سن 13 عاماً. نحن لا نجمع عن عمد معلومات شخصية من الأطفال تحت 13 عاماً. إذا اكتشفنا أننا جمعنا معلومات من طفل تحت 13 عاماً دون موافقة الوالدين، فسنحذف هذه المعلومات فوراً.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>📢 9. خدمات الطرف الثالث</h2>
+                        <p>قد يحتوي تطبيقنا على روابط لمواقع أو خدمات خارجية. نحن لسنا مسؤولين عن ممارسات الخصوصية لتلك المواقع. نشجعك على مراجعة سياسات الخصوصية الخاصة بهم.</p>
+                        <p>الخدمات الخارجية المستخدمة: Firebase (Google)، Cloudinary، Vercel.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>✉️ 10. التواصل معنا</h2>
+                        <div class="contact-email">
+                            <p>📧 إذا كان لديك أي أسئلة حول سياسة الخصوصية هذه، يرجى التواصل معنا عبر:</p>
+                            <p><strong>البريد الإلكتروني:</strong> <a href="mailto:privacy@eshartak.com">privacy@eshartak.com</a></p>
+                            <p>أو عبر صفحة التواصل في التطبيق.</p>
+                        </div>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>📝 11. تحديثات السياسة</h2>
+                        <p>قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سنقوم بإخطارك بأي تغييرات جوهرية عبر التطبيق أو البريد الإلكتروني. يُنصح بمراجعة هذه الصفحة دورياً للاطلاع على أي تحديثات. تاريخ آخر تحديث موضح في أعلى الصفحة.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <p>© 2026 إشارتك | Eshartak. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+
+        <!-- English Content -->
+        <div id="contentEn" style="display: none;">
+            <div class="privacy-card">
+                <div class="privacy-header">
+                    <h1>🔒 Privacy Policy</h1>
+                    <p>Eshartak App - Egyptian Microbus Hand Signals Guide</p>
+                    <p>Last Updated: June 9, 2026</p>
+                </div>
+                <div class="privacy-content">
+                    <div class="privacy-section">
+                        <h2>📌 1. Introduction</h2>
+                        <p>At <strong>Eshartak</strong>, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your information when you use our application and website.</p>
+                        <p>By using Eshartak, you agree to the collection and use of information in accordance with this policy.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>📊 2. Data We Collect</h2>
+                        <p>We collect the following types of data:</p>
+                        <ul>
+                            <li><span class="badge">Videos</span> <strong>Video Content:</strong> When you submit a new hand signal, we collect the video you upload to add to our directory after review.</li>
+                            <li><span class="badge">Usage</span> <strong>Usage Data:</strong> We collect information about how you interact with the app, such as which signs you view and search queries.</li>
+                            <li><span class="badge">Submissions</span> <strong>Submitted Content:</strong> Destinations, governorates, and notes you submit via the add signal form.</li>
+                            <li><span class="badge">Technical</span> <strong>Technical Data:</strong> IP address, browser type, operating system, and device identifier (for analytics and security).</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>⚙️ 3. How We Use Your Data</h2>
+                        <ul>
+                            <li><strong>App Improvement:</strong> Understand how you use the app to improve user experience and develop new features.</li>
+                            <li><strong>Moderation & Review:</strong> Review submitted videos and data to ensure they meet quality standards before publication.</li>
+                            <li><strong>Storage & Display:</strong> Store approved signals to display to other users.</li>
+                            <li><strong>Communication:</strong> Respond to your inquiries and support requests.</li>
+                        </ul>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🔥 4. Firebase & Cloudinary Usage</h2>
+                        <p>We use the following third-party services:</p>
+                        <ul>
+                            <li><strong>Firebase (Google):</strong> For data storage (Firestore Database) and authentication. Your data is stored on secure Google servers.</li>
+                            <li><strong>Cloudinary:</strong> For video storage, transformation, and CDN delivery for fast viewing experience.</li>
+                            <li><strong>Vercel:</strong> For hosting the application and backend server.</li>
+                        </ul>
+                        <p>These services may collect data independently according to their own privacy policies.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🍪 5. Cookies & Local Storage</h2>
+                        <p>We use cookies and local storage to enhance your experience:</p>
+                        <ul>
+                            <li>Remember your preferences (e.g., dark mode).</li>
+                            <li>Store authentication tokens (JWT) for admin dashboard access.</li>
+                            <li>Improve loading performance through caching.</li>
+                        </ul>
+                        <p>You can disable cookies in your browser settings, but this may affect some app functionality.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🔐 6. Data Security</h2>
+                        <p>We take data security seriously:</p>
+                        <ul>
+                            <li>All communications between your device and our server are encrypted using SSL/TLS (HTTPS).</li>
+                            <li>Passwords are securely stored using encryption.</li>
+                            <li>We use JWT for session management and authentication.</li>
+                            <li>Admin dashboard access is protected by strong authentication.</li>
+                            <li>We regularly review our security practices.</li>
+                        </ul>
+                        <p>⚠️ However, no system is 100% secure. We retain your data as long as your account is active or as needed to provide the service.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>👤 7. Your Rights</h2>
+                        <p>You have the following rights regarding your data:</p>
+                        <ul>
+                            <li><strong>Right to Access:</strong> Request a copy of your stored data.</li>
+                            <li><strong>Right to Rectification:</strong> Request correction of inaccurate data.</li>
+                            <li><strong>Right to Erasure:</strong> Request permanent deletion of your data.</li>
+                            <li><strong>Right to Object:</strong> Object to the processing of your data.</li>
+                        </ul>
+                        <p>To request data deletion or for any inquiries, contact us via the email below.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>🧒 8. Children's Privacy</h2>
+                        <p>Eshartak is not directed at children under 13 years of age. We do not knowingly collect personal information from children under 13. If we discover that we have collected information from a child under 13 without parental consent, we will delete that information immediately.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>📢 9. Third-Party Services</h2>
+                        <p>Our app may contain links to external websites or services. We are not responsible for the privacy practices of those sites. We encourage you to review their privacy policies.</p>
+                        <p>External services used: Firebase (Google), Cloudinary, Vercel.</p>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>✉️ 10. Contact Us</h2>
+                        <div class="contact-email">
+                            <p>📧 If you have any questions about this Privacy Policy, please contact us at:</p>
+                            <p><strong>Email:</strong> <a href="mailto:privacy@eshartak.com">privacy@eshartak.com</a></p>
+                            <p>Or through the app's contact page.</p>
+                        </div>
+                    </div>
+
+                    <div class="privacy-section">
+                        <h2>📝 11. Policy Updates</h2>
+                        <p>We may update this Privacy Policy from time to time. We will notify you of any material changes via the app or email. You are advised to review this page periodically for updates. The last update date is at the top of this page.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <p>© 2026 Eshartak. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            const arContent = document.getElementById('contentAr');
+            const enContent = document.getElementById('contentEn');
+            const btns = document.querySelectorAll('.lang-btn');
+            
+            if (lang === 'ar') {
+                arContent.style.display = 'block';
+                enContent.style.display = 'none';
+                document.body.classList.remove('en');
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
+            } else {
+                arContent.style.display = 'none';
+                enContent.style.display = 'block';
+                document.body.classList.add('en');
+                btns[0].classList.remove('active');
+                btns[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
