@@ -24,6 +24,10 @@
       "dest": "/public/dashboard.html"
     },
     {
+      "src": "/privacy policy",
+      "dest": "/public/privacy-policy.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
