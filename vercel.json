@@ -24,7 +24,7 @@
       "dest": "/public/dashboard.html"
     },
     {
-      "src": "/privacy policy",
+      "src": "/privacy-policy",
       "dest": "/public/privacy-policy.html"
     },
     {
